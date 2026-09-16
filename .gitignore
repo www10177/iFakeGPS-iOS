@@ -1,0 +1,12 @@
+.build/
+.generated/
+dist/
+.swiftpm/
+.DS_Store
+__pycache__/
+*.pyc
+*.xcuserstate
+*.mobileprovision
+*.p12
+*.ipa
+Local.private.xcconfig

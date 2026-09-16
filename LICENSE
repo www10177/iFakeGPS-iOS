@@ -1,0 +1,14 @@
+Copyright (c) 2026 iFakeGPS-iOS contributors.
+
+The original additions in this repository are licensed under the PolyForm
+Noncommercial License 1.0.0, whose full terms are incorporated by reference:
+https://polyformproject.org/licenses/noncommercial/1.0.0/
+
+The pinned Roam Control Build 61 source retains its own copyright and its
+PolyForm Noncommercial License 1.0.0. The complete upstream license is in
+Upstream/RoamControl/LICENSE at commit
+19b596e737639a7a7089b7d476eee848a3255559.
+
+Retain NOTICE and all applicable upstream and third-party notices when
+redistributing the software. Third-party components retain their own licenses.
+No commercial permission is granted by this repository's license.
