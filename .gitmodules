@@ -1,0 +1,4 @@
+[submodule "Upstream/RoamControl"]
+	path = Upstream/RoamControl
+	url = https://github.com/seanhowarthdev/Roam-Control.git
+	update = checkout

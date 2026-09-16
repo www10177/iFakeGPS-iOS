@@ -1,0 +1,50 @@
+name: Route tests and unsigned iOS build
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ifakegps-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  route-core:
+    runs-on: ubuntu-latest
+    container: swift:6.2.1
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - run: swift test
+  ios:
+    needs: route-core
+    # Official preview image: actions/runner-images issue 14404.
+    runs-on: xcode-27
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Check integration guards
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+      - name: Compile and package unsigned IPA
+        run: bash scripts/build_ipa.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: iFakeGPS-iOS-unsigned
+          path: dist/iFakeGPS-iOS-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: ios-build-diagnostics
+          path: |
+            .generated/build.log
+            .generated/provenance.json
+          if-no-files-found: ignore
+          retention-days: 7
