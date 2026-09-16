@@ -134,7 +134,7 @@ final class WalkingSimulationController {
             switch appModel.deviceSession.phase {
             case .active:
                 // Updating an already-active fixed session does not emit a phase change.
-                handleDeviceSessionPhase(.active, deviceSession: appModel.deviceSession)
+                handleDeviceSessionPhase(appModel.deviceSession.phase, deviceSession: appModel.deviceSession)
             case .idle: phase = .failed("The device session did not start.")
             case .failed(let message): phase = .failed(message)
             default: break
