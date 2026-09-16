@@ -64,6 +64,12 @@ def patch_home(text: str) -> str:
         "        .sheet(isPresented: $isShowingSavedPlaces) {")
 
 
+def patch_update_checker(text: str) -> str:
+    return replace_once(text,
+        "https://api.github.com/repos/seanhowarthdev/Roam-Control/releases/latest",
+        "https://api.github.com/repos/www10177/iFakeGPS-iOS/releases/latest")
+
+
 def prepare(root: Path = ROOT) -> Path:
     lock = json.loads((root / "upstream.lock.json").read_text())
     upstream = root / "Upstream/RoamControl"
@@ -100,6 +106,8 @@ def prepare(root: Path = ROOT) -> Path:
     preview.write_text(replace_once(preview.read_text(),
         "            if canChoosePace {\n                pacePicker\n            }",
         "            if canChoosePace {\n                PlaybackOptionsView(simulation: simulation)\n            }"))
+    update_checker = target / "RoamControl/Services/ReleaseUpdateChecker.swift"
+    update_checker.write_text(patch_update_checker(update_checker.read_text()))
     shutil.copy2(root / "Integration/WalkingSimulationController.swift",
                  target / "RoamControl/Features/Map/WalkingSimulationController.swift")
     feature = target / "RoamControl/IFakeGPS"

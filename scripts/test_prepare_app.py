@@ -1,5 +1,5 @@
 import unittest
-from prepare_app import replace_once, patch_home
+from prepare_app import replace_once, patch_home, patch_update_checker
 
 
 class IntegrationTests(unittest.TestCase):
@@ -13,6 +13,14 @@ class IntegrationTests(unittest.TestCase):
     def test_duplicate_anchor_fails_closed(self):
         with self.assertRaises(RuntimeError):
             replace_once("A A", "A", "B")
+
+    def test_release_checker_targets_this_repo_only(self):
+        original = 'let url = "https://api.github.com/repos/seanhowarthdev/Roam-Control/releases/latest"'
+        patched = patch_update_checker(original)
+        self.assertIn("www10177/iFakeGPS-iOS/releases/latest", patched)
+        self.assertNotIn("seanhowarthdev/Roam-Control", patched)
+        with self.assertRaises(RuntimeError):
+            patch_update_checker(patched)
 
     def test_home_patch_requires_exact_pinned_structure(self):
         text = "\n".join([

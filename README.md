@@ -44,7 +44,9 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 git submodule update --init --recursive
 ```
 
-本次本機驗證：Swift 6.2.1 / Linux，21 項 XCTest 通過；4 項 Python 整合錨點測試通過。另執行 Swift 語法解析與 shell 語法檢查。這些檢查**不等於** SwiftUI／MapKit 完整 type-check、iOS archive 或實機定位測試。
+本機驗證：Swift 6.2.1 / Linux，Debug 與 Release 各 21 項 XCTest 通過；5 項 Python 整合錨點／更新來源測試通過。另執行 Swift 語法解析與 shell 語法檢查。
+
+GitHub Actions 已在 commit `182ee69db138d28843e4f65a887086d272b3dc8f` 完成一次 Xcode 27 iOS archive 與未簽署 IPA 打包（[Run #2](https://github.com/www10177/iFakeGPS-iOS/actions/runs/35106397747)）。後續提交以各自的 PR checks 為準。**編譯成功不等於真機定位、重簽安裝或背景執行已驗收。**
 
 在具有 Xcode 27 與 iOS 27 SDK 的 Mac：
 
@@ -65,6 +67,8 @@ PR 建立／更新與 main push 會觸發 GitHub Actions。iOS job 使用官方 
 
 第一階段仍保留上游 callback URL scheme 與部分上游文案／圖示。**不要與原版 Roam Control 同時安裝**，以免 URL callback 被另一個 App 接收；完整重新命名列為後續工作。
 
+更新檢查只查詢 `www10177/iFakeGPS-iOS` 的 release，不把上游 Roam Control 當成這個 App 的更新。儲存庫為私人或尚無公開 release 時，未登入的更新檢查可能顯示沒有已發布版本；App 不包含 GitHub token。
+
 GPX 匯入上限 5 MiB／50,000 點；路線庫上限 200 條／200,000 點／20 MiB。GPX 的海拔、時間戳與多段間的間隔不參與播放。
 
 循環採用「沿原路折返」，不是從終點瞬移回起點。開始路線會先設定到第一個路點；抵達或暫停不代表真實定位已還原，結束時請使用 **Stop & Restore**。
@@ -81,4 +85,4 @@ GPX 匯入上限 5 MiB／50,000 點；路線庫上限 200 條／200,000 點／20
 
 整合基底為 **Roam Control 0.9.2 Preview Build 61 / PolyForm Noncommercial 1.0.0**，不是後續受限的 main。新增程式碼同樣以 PolyForm Noncommercial 1.0.0 提供；商業使用不在此授權範圍內。
 
-保留 `NOTICE`、上游完整授權與第三方聲明；建置時把上游授權文件放入 App resource。第三方元件維持原授權。上游歷史版本的授權不代表後续 main 可以自由合併；任何升級都必須重新審查。
+保留 `NOTICE`、上游完整授權與第三方聲明；建置時把上游授權文件放入 App resource。第三方元件維持原授權。上游歷史版本的授權不代表後續 main 可以自由合併；任何升級都必須重新審查。
