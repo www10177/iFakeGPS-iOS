@@ -1,0 +1,29 @@
+name: Integration source snapshot
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/bookmarks-waypoint-editor]
+    paths: [.github/workflows/source-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - name: Prepare reviewed integration
+        run: python3 scripts/prepare_app.py
+      - name: Package tracked sources and generated app
+        run: |
+          mkdir -p snapshot
+          git archive HEAD | gzip > snapshot/project.tar.gz
+          git -C Upstream/RoamControl archive HEAD | gzip > snapshot/upstream.tar.gz
+          tar -czf snapshot/generated.tar.gz .generated/RoamControl .generated/provenance.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: integration-source-snapshot
+          path: snapshot/*.tar.gz
+          retention-days: 1
