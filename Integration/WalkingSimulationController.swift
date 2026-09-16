@@ -40,8 +40,14 @@ final class WalkingSimulationController {
     @ObservationIgnored private var routeStart: LocationTarget?
     @ObservationIgnored private var movementTask: Task<Void, Never>?
     @ObservationIgnored private var generation: UInt64 = 0
+    @ObservationIgnored private var routeRevision: UInt64 = 0
     @ObservationIgnored private var routeName = "Route"
 
+    var editToken: String { "\(generation):\(routeRevision)" }
+    var routeEnd: RouteCoordinate? { geometry?.points.last }
+    var canAppendWaypoints: Bool {
+        player != nil && (phase == .walking || phase == .paused || phase == .arrived)
+    }
     var progress: Double { totalDistance > 0 ? min(max(distanceTravelled / totalDistance, 0), 1) : 0 }
     var remainingDistance: CLLocationDistance { max(totalDistance - distanceTravelled, 0) }
     var remainingDuration: TimeInterval { remainingDistance / max(speedKMH / 3.6, 0.01) }
@@ -77,6 +83,7 @@ final class WalkingSimulationController {
     private func prepare(points: [RouteCoordinate], destination: LocationTarget, name: String, custom: Bool) throws {
         let geometry = try RouteGeometry(points: points)
         cancelMovement()
+        routeRevision &+= 1
         self.geometry = geometry
         player = nil
         totalDistance = geometry.length
@@ -140,6 +147,31 @@ final class WalkingSimulationController {
             default: break
             }
         } catch { phase = .failed(error.localizedDescription) }
+    }
+
+    func appendWaypoints(_ points: [RouteCoordinate], using appModel: AppModel) throws {
+        guard canAppendWaypoints, case .active = appModel.deviceSession.phase, var candidate = player else {
+            throw RouteError.invalid("Only an active or paused route can receive appended waypoints.")
+        }
+        try candidate.append(points)
+        let wasArrived = phase == .arrived
+        // The upstream recovery format cannot store arbitrary appended geometry.
+        // Persist a fixed recovery target rather than silently re-routing on restart.
+        appModel.preserveEditedRouteRecovery(at: target(at: candidate.current))
+        player = candidate
+        geometry = candidate.geometry
+        totalDistance = candidate.geometry.length
+        distanceTravelled = candidate.distanceAlongRoute
+        routeRevision &+= 1
+        isCustomRoute = true
+        let coordinates = candidate.geometry.points.map(coordinate)
+        customPolyline = MKPolyline(coordinates: coordinates, count: coordinates.count)
+        if let last = candidate.geometry.points.last { destination = target(at: last) }
+        if wasArrived {
+            phase = .paused
+            interruptionNotice = String(localized: "Waypoints appended. Resume to continue from the endpoint.")
+            beginMovement(using: appModel.deviceSession)
+        }
     }
 
     func togglePause() {

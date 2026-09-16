@@ -3,7 +3,7 @@ import Foundation
 public enum RouteError: LocalizedError, Equatable {
     case invalid(String)
     public var errorDescription: String? {
-        switch self { case .invalid(let message): return message }
+        switch self { case .invalid(let message): return NSLocalizedString(message, comment: "Route validation") }
     }
 }
 
@@ -149,7 +149,7 @@ public struct PlaybackOptions: Equatable, Sendable {
 /// Advance a COPY, submit its coordinate, then commit that copy only if the
 /// transport accepted the update. Failed submissions must not consume distance.
 public struct RoutePlayer: Sendable {
-    public let geometry: RouteGeometry
+    public private(set) var geometry: RouteGeometry
     public var options: PlaybackOptions
     private var cycleDistance = 0.0
 
@@ -157,6 +157,19 @@ public struct RoutePlayer: Sendable {
         self.geometry = geometry
         self.options = options
     }
+    /// Extend only the tail. Preserve both distance and return-leg direction.
+    /// Validation is completed before mutating any state.
+    public mutating func append(_ points: [RouteCoordinate]) throws {
+        let extended = try RouteGeometry(points: geometry.points + points)
+        guard extended.length > geometry.length else {
+            throw RouteError.invalid("Append at least one different point after the route endpoint.")
+        }
+        let distance = distanceAlongRoute
+        let returning = cycleDistance > geometry.length
+        geometry = extended
+        cycleDistance = returning ? 2 * extended.length - distance : distance
+    }
+
     public var distanceAlongRoute: Double {
         cycleDistance <= geometry.length ? cycleDistance : 2 * geometry.length - cycleDistance
     }

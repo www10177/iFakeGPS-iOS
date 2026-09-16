@@ -167,11 +167,11 @@ struct PlaybackOptionsView: View {
     @Bindable var simulation: WalkingSimulationController
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Speed: \(simulation.speedKMH, specifier: "%.1f") km/h")
+            (Text("Speed") + Text(String(format: ": %.1f km/h", simulation.speedKMH)))
                 .font(.subheadline.monospacedDigit())
             Slider(value: $simulation.speedKMH, in: 0.1...50, step: 0.1)
                 .accessibilityLabel("Speed in kilometres per hour")
-            Text("Speed variation: \(simulation.speedVariationPercent, specifier: "%.0f")%")
+            (Text("Speed variation") + Text(String(format: ": %.0f%%", simulation.speedVariationPercent)))
                 .font(.caption)
             Slider(value: $simulation.speedVariationPercent, in: 0...50, step: 1)
                 .accessibilityLabel("Random speed variation percentage")
@@ -207,7 +207,7 @@ struct IFakeRoutePlaybackCard: View {
                             .disabled(!isPaired)
                         Button("Close", action: onClose)
                     } else if simulation.phase == .walking || simulation.phase == .paused {
-                        Button(simulation.phase == .paused ? "Resume" : "Pause", action: simulation.togglePause)
+                        Button(LocalizedStringKey(simulation.phase == .paused ? "Resume" : "Pause"), action: simulation.togglePause)
                             .buttonStyle(.borderedProminent)
                     }
                     if simulation.phase != .idle {
