@@ -151,6 +151,8 @@ def prepare(root: Path = ROOT) -> Path:
             notices.append(f"\n--- {source.relative_to(target)} ---\n{source.read_text()}")
     (feature / "UpstreamLicenses.txt").write_text("\n".join(notices))
     (generated / "provenance.json").write_text(json.dumps(lock, indent=2) + "\n")
+    from phase2 import apply_phase2
+    apply_phase2(target, root)
     return target
 
 

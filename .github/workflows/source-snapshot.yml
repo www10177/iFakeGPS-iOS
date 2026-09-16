@@ -1,9 +1,6 @@
 name: Integration source snapshot
 on:
   workflow_dispatch:
-  push:
-    branches: [feat/bookmarks-waypoint-editor]
-    paths: [.github/workflows/source-snapshot.yml]
 permissions:
   contents: read
 jobs:

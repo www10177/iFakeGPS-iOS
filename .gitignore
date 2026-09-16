@@ -10,3 +10,5 @@ __pycache__/
 *.p12
 *.ipa
 Local.private.xcconfig
+
+.qa/
